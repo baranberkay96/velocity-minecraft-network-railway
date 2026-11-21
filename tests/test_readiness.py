@@ -5,6 +5,7 @@ from pathlib import Path
 import socket
 import threading
 import unittest
+from unittest.mock import patch
 import urllib.error
 import urllib.request
 
@@ -86,6 +87,37 @@ class ReadinessTests(unittest.TestCase):
         finally:
             server.shutdown()
             server.server_close()
+
+    def test_proxy_needs_valid_matching_private_backend_status(self):
+        local = {'version': {'name': 'Paper 26.3', 'protocol': 777}, 'players': {'online': 0, 'max': 20}, 'description': 'world'}
+        original = launch.minecraft_status
+        def response(value):
+            if isinstance(value, bytes):
+                return value
+            encoded = json.dumps(value).encode()
+            body = b'\x00' + varint(len(encoded)) + encoded
+            return varint(len(body)) + body
+        for backend, expected in ((local, True), (b'HTTP/1.1 200 OK\r\n', False), ({**local, 'description': 'different'}, False)):
+            with self.subTest(backend=backend):
+                local_port = self.serve_once(response(local))
+                backend_port = self.serve_once(response(backend))
+                with patch.object(launch, 'minecraft_status', side_effect=lambda host: original('127.0.0.1', local_port if host == '127.0.0.1' else backend_port)):
+                    self.assertEqual(launch.network_ready('velocity', 'lobby.railway.internal'), expected)
+
+    def test_dead_child_immediately_invalidates_cached_ready_health(self):
+        state = {'state': 'ready', 'role': 'paper'}
+        server = launch.health_server(state, 0, child_running=lambda: False)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            for path in ('/health', '/ready'):
+                with self.assertRaises(urllib.error.HTTPError) as failed:
+                    urllib.request.urlopen(f'http://127.0.0.1:{server.server_address[1]}{path}', timeout=2)
+                self.assertEqual(failed.exception.code, 503)
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join()
 
 if __name__ == '__main__':
     unittest.main()
