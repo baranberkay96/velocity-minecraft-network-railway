@@ -1,6 +1,6 @@
 # Velocity Minecraft Network (Paper Lobby)
 
-Repository to publish later: `baranberkay96/velocity-minecraft-network-railway`. This package was assembled and tested locally; cloud checks are pending root integration.
+Published repository: `baranberkay96/velocity-minecraft-network-railway`. Local and Railway cloud validation completed on 2026-11-21.
 
 ## Composer specification
 
@@ -56,6 +56,6 @@ See `TEST-RESULTS.md` for actual build and protocol observations. `python3 -m un
 
 ## Open questions
 
-- Cloud checks are pending root integration; Railway private DNS/ingress remain to be verified there.
+- Railway private backend routing, public TCP status, online-authentication challenge and recovery after redeploy passed cloud validation on 2026-11-21. A separate deployment from the published template also passed.
 - Full authenticated gameplay requires a real paid Minecraft account and was not tested by the protocol probes.
 - Plugin compatibility, large player counts, long-term world growth, and offsite backup operations remain operator-specific.
