@@ -1,5 +1,7 @@
 # Deploy and Host Velocity Minecraft Network (Paper Lobby) with Railway
 
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/velocity-minecraft-network-paper-lobby?referralCode=20H68q)
+
 Deploy a community Minecraft Java Edition network with Velocity 4.3.1 and a working Paper 26.3 lobby. Players connect to one public TCP address. The lobby stays on Railway's private network, with authenticated modern forwarding and persistent worlds. Explicit Minecraft EULA acceptance and a paid Minecraft account for players are required.
 
 ## About Hosting Velocity Minecraft Network (Paper Lobby)
