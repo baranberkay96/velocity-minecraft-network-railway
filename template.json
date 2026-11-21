@@ -1,0 +1,154 @@
+{
+  "name": "Velocity Minecraft Network (Paper Lobby)",
+  "description": "Minecraft proxy with a private Paper lobby and modern player forwarding.",
+  "category": "Other",
+  "tags": [
+    "minecraft",
+    "velocity",
+    "paper",
+    "game-server",
+    "network"
+  ],
+  "image": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/minecraft.svg",
+  "services": {
+    "Velocity": {
+      "icon": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/minecraft.svg",
+      "source": {
+        "repo": "baranberkay96/velocity-minecraft-network-railway",
+        "rootDirectory": "/services/velocity"
+      },
+      "healthcheckPath": "/health",
+      "healthcheckTimeout": 1200,
+      "restartPolicyType": "ALWAYS",
+      "numReplicas": 1,
+      "publicDomain": false,
+      "targetPort": 8080,
+      "tcpProxy": 25565,
+      "volume": {
+        "mountPath": "/data"
+      },
+      "variables": {
+        "PORT": {
+          "defaultValue": "8080",
+          "description": "Private supervisor HTTP port used by Railway healthchecks; keep 8080.",
+          "required": false
+        },
+        "HEAP_MB": {
+          "defaultValue": "384",
+          "description": "Maximum Java heap in MiB; proxy default 384, separate from container overhead.",
+          "required": false
+        },
+        "EULA": {
+          "defaultValue": "${{Lobby.EULA}}",
+          "description": "References explicit Minecraft EULA acceptance on Lobby; never accepted automatically.",
+          "required": false
+        },
+        "FORWARDING_SECRET": {
+          "defaultValue": "${{Lobby.FORWARDING_SECRET}}",
+          "description": "Shared modern-forwarding secret; reference the Lobby generated variable.",
+          "required": false
+        },
+        "MAX_PLAYERS": {
+          "defaultValue": "${{Lobby.MAX_PLAYERS}}",
+          "description": "Displayed player capacity; references the lobby setting.",
+          "required": false
+        },
+        "RAILWAY_DEPLOYMENT_DRAINING_SECONDS": {
+          "defaultValue": "120",
+          "description": "Save and stop gracefully before Railway terminates the old container.",
+          "required": false
+        },
+        "RAILWAY_DEPLOYMENT_OVERLAP_SECONDS": {
+          "defaultValue": "0",
+          "description": "Disable overlapping deployments against persistent game state.",
+          "required": false
+        },
+        "BACKEND_HOST": {
+          "defaultValue": "${{Lobby.RAILWAY_PRIVATE_DOMAIN}}",
+          "description": "Private lobby hostname; never point to a public TCP proxy.",
+          "required": false
+        },
+        "MOTD": {
+          "defaultValue": "${{Lobby.MOTD}}",
+          "description": "Multiplayer server list message; at most 200 characters.",
+          "required": false
+        }
+      }
+    },
+    "Lobby": {
+      "icon": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/minecraft.svg",
+      "source": {
+        "repo": "baranberkay96/velocity-minecraft-network-railway",
+        "rootDirectory": "/services/paper"
+      },
+      "healthcheckPath": "/health",
+      "healthcheckTimeout": 1200,
+      "restartPolicyType": "ALWAYS",
+      "numReplicas": 1,
+      "publicDomain": false,
+      "targetPort": 8080,
+      "tcpProxy": null,
+      "volume": {
+        "mountPath": "/data"
+      },
+      "variables": {
+        "PORT": {
+          "defaultValue": "8080",
+          "description": "Private supervisor HTTP port used by Railway healthchecks; keep 8080.",
+          "required": false
+        },
+        "HEAP_MB": {
+          "defaultValue": "2048",
+          "description": "Maximum Java heap in MiB; allocate at least 3-4 GB container RAM including Java overhead.",
+          "required": false
+        },
+        "EULA": {
+          "defaultValue": "",
+          "description": "REQUIRED: enter true only after accepting https://aka.ms/MinecraftEULA.",
+          "required": true
+        },
+        "FORWARDING_SECRET": {
+          "defaultValue": "${{secret(64)}}",
+          "description": "Generated shared modern-forwarding secret; 32-128 letters, digits, underscores or hyphens.",
+          "required": false
+        },
+        "MAX_PLAYERS": {
+          "defaultValue": "20",
+          "description": "Maximum concurrent players, from 1 through 1000.",
+          "required": false
+        },
+        "RAILWAY_DEPLOYMENT_DRAINING_SECONDS": {
+          "defaultValue": "120",
+          "description": "Save and stop gracefully before Railway terminates the old container.",
+          "required": false
+        },
+        "RAILWAY_DEPLOYMENT_OVERLAP_SECONDS": {
+          "defaultValue": "0",
+          "description": "Disable overlapping deployments against persistent game state.",
+          "required": false
+        },
+        "VIEW_DISTANCE": {
+          "defaultValue": "6",
+          "description": "Chunk view distance, 2-16; lower values reduce world CPU and RAM.",
+          "required": false
+        },
+        "SIMULATION_DISTANCE": {
+          "defaultValue": "4",
+          "description": "Chunk simulation distance, 2-16.",
+          "required": false
+        },
+        "WHITELIST_ENABLED": {
+          "defaultValue": "false",
+          "description": "Set true to require the persisted Paper whitelist; no accounts or operators are added automatically.",
+          "required": false
+        },
+        "MOTD": {
+          "defaultValue": "A Minecraft network on Railway",
+          "description": "Multiplayer message, at most 200 characters; Velocity passes through this backend status.",
+          "required": false
+        }
+      }
+    }
+  },
+  "buckets": []
+}
